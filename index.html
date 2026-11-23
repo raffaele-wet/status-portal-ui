@@ -18,75 +18,67 @@
     }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body {
-      margin: 0; padding: 16px; background: var(--bg); color: var(--text);
+      margin: 0; padding: 14px; background: var(--bg); color: var(--text);
       min-height: 100vh; display: flex; justify-content: center;
     }
-    .wrap { width: 100%; max-width: 520px; }
+    .wrap { width: 100%; max-width: 440px; }
     .card {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 16px; margin-bottom: 14px;
+      border-radius: 12px; padding: 14px; margin-bottom: 12px;
     }
-    h1, h2 { margin: 0 0 12px 0; font-size: 1.05rem; font-weight: 600; }
-    label { display: block; font-size: 0.82rem; color: var(--muted); margin: 10px 0 4px; }
-    input, select, textarea {
-      width: 100%; padding: 11px 12px; border-radius: 10px;
+    h1, h2 { margin: 0 0 10px 0; font-size: 0.96rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin: 8px 0 4px; }
+    input, select {
+      width: 100%; padding: 10px 12px; border-radius: 9px;
       border: 1px solid var(--border); background: #0b1220; color: var(--text);
-      font-size: 0.95rem;
-    }
-    textarea {
-      min-height: 240px; resize: vertical;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 0.84rem; line-height: 1.45;
+      font-size: 0.92rem;
     }
     button {
-      width: 100%; padding: 12px; border-radius: 10px; border: 0;
+      width: 100%; padding: 11px; border-radius: 9px; border: 0;
       background: var(--accent); color: #0b1220; font-weight: 700;
-      font-size: 0.95rem; cursor: pointer; margin-top: 12px;
+      font-size: 0.9rem; cursor: pointer; margin-top: 10px;
     }
     button.secondary { background: #334155; color: var(--text); }
     button.danger { background: var(--err); color: #fff; }
     button.ok { background: var(--ok); color: #052e16; }
     button:disabled { opacity: 0.5; cursor: wait; }
-    .row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #263348; gap: 8px; }
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #263348; gap: 8px; }
     .row:last-child { border-bottom: 0; }
     .k { color: var(--muted); font-size: 0.86rem; }
-    .v { font-size: 0.9rem; font-weight: 600; text-align: right; word-break: break-word; }
-    .badge { padding: 3px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+    .v { font-size: 0.88rem; font-weight: 600; text-align: right; }
+    .badge { padding: 3px 9px; border-radius: 999px; font-size: 0.76rem; font-weight: 700; }
     .badge.ok { background: rgba(34,197,94,0.2); color: var(--ok); }
     .badge.warn { background: rgba(234,179,8,0.2); color: var(--warn); }
     .badge.err { background: rgba(239,68,68,0.2); color: var(--err); }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 8px; }
-    .grid button { margin-top: 0; padding: 10px 8px; font-size: 0.86rem; }
-    .select-row { display: flex; gap: 8px; margin-top: 10px; align-items: stretch; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 8px; margin-top: 10px; }
+    .grid button { margin-top: 0; padding: 10px 8px; font-size: 0.88rem; }
+    .select-row { display: flex; gap: 8px; margin-top: 10px; }
     .select-row select { flex: 1; }
-    .select-row button { width: auto; margin-top: 0; padding: 10px 14px; white-space: nowrap; }
-    .meta { font-size: 0.78rem; color: var(--muted); margin: 6px 0 8px; }
-    .msg { font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+    .select-row button { width: auto; margin-top: 0; padding: 10px 14px; }
+    .msg { font-size: 0.82rem; margin: 0 0 10px 0; min-height: 1.1em; }
     .msg.err { color: var(--err); }
     .msg.ok { color: var(--ok); }
-    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .topbar button { width: auto; margin: 0; padding: 7px 12px; font-size: 0.82rem; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .topbar button { width: auto; margin: 0; padding: 7px 12px; font-size: 0.8rem; }
     .hidden { display: none; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- Guscio completamente neutro: nessun segreto, nessun URL, nessuna logica applicativa -->
     <div id="view-login" class="card">
       <h1>Accesso</h1>
-      <label for="inp-endpoint">URL Servizio</label>
+      <label for="inp-endpoint">URL</label>
       <input id="inp-endpoint" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" />
       <label for="inp-pass">Password</label>
-      <input id="inp-pass" type="password" placeholder="Inserisci password" autocomplete="current-password" />
+      <input id="inp-pass" type="password" autocomplete="current-password" />
       <button id="btn-login">Entra</button>
-      <div id="login-msg" class="msg err"></div>
+      <div id="login-msg" class="msg err" style="margin-top:8px;"></div>
     </div>
 
-    <!-- Interfaccia dinamica interamente generata dal server dopo autenticazione -->
     <div id="view-app" class="hidden">
       <div class="topbar">
-        <strong id="app-title">Pannello</strong>
-        <div style="display:flex; gap:8px;">
+        <strong id="app-title">Stato</strong>
+        <div style="display:flex; gap:6px;">
           <button id="btn-refresh" class="secondary">Aggiorna</button>
           <button id="btn-logout" class="secondary">Esci</button>
         </div>
@@ -118,18 +110,14 @@
       async function callRemote(action, params) {
         const endpoint = (localStorage.getItem(STORAGE_EP) || inpEp.value || "").trim();
         const password = sessionStorage.getItem(SESSION_PW) || inpPw.value || "";
-        if (!endpoint || !password) {
-          throw new Error("Compila URL servizio e password.");
-        }
+        if (!endpoint || !password) throw new Error("Campi mancanti.");
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({ password, action, params: params || {} }),
         });
         const data = await res.json();
-        if (!data || !data.ok) {
-          throw new Error((data && data.error) || "Richiesta rifiutata.");
-        }
+        if (!data || !data.ok) throw new Error((data && data.error) || "Errore.");
         return data;
       }
 
@@ -137,10 +125,9 @@
         if (confirmMsg && !window.confirm(confirmMsg)) return;
         if (btn) btn.disabled = true;
         appMsg.className = "msg";
-        appMsg.textContent = "Invio in corso...";
+        appMsg.textContent = "...";
         try {
-          const out = await callRemote(action, params);
-          renderPayload(out);
+          renderPayload(await callRemote(action, params));
         } catch (err) {
           appMsg.className = "msg err";
           appMsg.textContent = err.message;
@@ -150,7 +137,7 @@
       }
 
       function renderPayload(data) {
-        appTitle.textContent = data.title || "Pannello";
+        appTitle.textContent = data.title || "Stato";
         appMsg.className = "msg ok";
         appMsg.textContent = data.notice || "";
         appCards.innerHTML = "";
@@ -190,7 +177,7 @@
               sel.appendChild(o);
             });
             const sb = document.createElement("button");
-            sb.textContent = sec.select.buttonLabel || "Applica";
+            sb.textContent = sec.select.buttonLabel || "OK";
             sb.className = sec.select.style || "secondary";
             sb.addEventListener("click", function () {
               const p = Object.assign({}, sec.select.params || {});
@@ -202,83 +189,39 @@
             card.appendChild(sRow);
           }
 
-          if (sec.editor) {
-            const ed = sec.editor;
-            const meta = document.createElement("div");
-            meta.className = "meta";
-            const ta = document.createElement("textarea");
-            ta.value = ed.content || "";
-            const updateMeta = function () {
-              meta.textContent = (ed.metaPrefix ? ed.metaPrefix + " · " : "") + ta.value.length + " caratteri";
-            };
-            updateMeta();
-            ta.addEventListener("input", updateMeta);
-            card.appendChild(meta);
-            card.appendChild(ta);
-
-            const edBtns = document.createElement("div");
-            edBtns.className = "grid";
-            edBtns.style.marginTop = "10px";
-
-            if (ed.allowFileUpload) {
-              const fileInput = document.createElement("input");
-              fileInput.type = "file";
-              fileInput.accept = ".md,.txt,text/plain,text/markdown";
-              fileInput.className = "hidden";
-              fileInput.addEventListener("change", function () {
-                const f = fileInput.files && fileInput.files[0];
-                if (!f) return;
-                const reader = new FileReader();
-                reader.onload = function () {
-                  ta.value = String(reader.result || "");
-                  updateMeta();
-                  appMsg.className = "msg ok";
-                  appMsg.textContent = "File caricato nell'editor. Premi Salva per confermare.";
-                };
-                reader.readAsText(f, "utf-8");
-              });
-              card.appendChild(fileInput);
-
-              const btnLoad = document.createElement("button");
-              btnLoad.textContent = ed.uploadLabel || "Carica file";
-              btnLoad.className = "secondary";
-              btnLoad.addEventListener("click", function () { fileInput.click(); });
-              edBtns.appendChild(btnLoad);
-            }
-
-            const btnSave = document.createElement("button");
-            btnSave.textContent = ed.saveLabel || "Salva";
-            btnSave.className = "ok";
-            btnSave.addEventListener("click", function () {
-              const p = Object.assign({}, ed.params || {});
-              p[ed.contentKey || "content"] = ta.value;
-              runAction(btnSave, ed.action, p, ed.confirm);
-            });
-            edBtns.appendChild(btnSave);
-
-            if (ed.closeAction) {
-              const btnClose = document.createElement("button");
-              btnClose.textContent = "Chiudi editor";
-              btnClose.className = "secondary";
-              btnClose.addEventListener("click", function () {
-                runAction(btnClose, ed.closeAction, {}, null);
-              });
-              edBtns.appendChild(btnClose);
-            }
-            card.appendChild(edBtns);
-          }
-
           if (sec.actions && sec.actions.length) {
             const grid = document.createElement("div");
             grid.className = "grid";
-            grid.style.marginTop = "10px";
             sec.actions.forEach(function (act) {
               const b = document.createElement("button");
               b.textContent = act.label;
               if (act.style) b.className = act.style;
-              b.addEventListener("click", function () {
-                runAction(b, act.action, act.params, act.confirm);
-              });
+
+              if (act.upload) {
+                const fileInput = document.createElement("input");
+                fileInput.type = "file";
+                fileInput.accept = act.accept || ".md,.txt,text/plain,text/markdown";
+                fileInput.className = "hidden";
+                fileInput.addEventListener("change", function () {
+                  const f = fileInput.files && fileInput.files[0];
+                  fileInput.value = "";
+                  if (!f) return;
+                  const reader = new FileReader();
+                  reader.onload = function () {
+                    const p = Object.assign({}, act.params || {});
+                    p[act.contentKey || "content"] = String(reader.result || "");
+                    runAction(b, act.action, p, act.confirm);
+                  };
+                  reader.readAsText(f, "utf-8");
+                });
+                card.appendChild(fileInput);
+                b.addEventListener("click", function () { fileInput.click(); });
+              } else {
+                b.addEventListener("click", function () {
+                  runAction(b, act.action, act.params, act.confirm);
+                });
+              }
+
               grid.appendChild(b);
             });
             card.appendChild(grid);
@@ -292,10 +235,8 @@
         loginMsg.textContent = "";
         btnLogin.disabled = true;
         try {
-          const ep = inpEp.value.trim();
-          const pw = inpPw.value;
-          localStorage.setItem(STORAGE_EP, ep);
-          sessionStorage.setItem(SESSION_PW, pw);
+          localStorage.setItem(STORAGE_EP, inpEp.value.trim());
+          sessionStorage.setItem(SESSION_PW, inpPw.value);
           const data = await callRemote("status", {});
           elLogin.classList.add("hidden");
           elApp.classList.remove("hidden");
@@ -310,11 +251,7 @@
 
       btnLogin.addEventListener("click", doLogin);
       inpPw.addEventListener("keydown", function (e) { if (e.key === "Enter") doLogin(); });
-
-      btnRefresh.addEventListener("click", function () {
-        runAction(btnRefresh, "status", {}, null);
-      });
-
+      btnRefresh.addEventListener("click", function () { runAction(btnRefresh, "status", {}, null); });
       btnLogout.addEventListener("click", function () {
         sessionStorage.removeItem(SESSION_PW);
         inpPw.value = "";
