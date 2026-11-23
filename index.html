@@ -21,17 +21,22 @@
       margin: 0; padding: 16px; background: var(--bg); color: var(--text);
       min-height: 100vh; display: flex; justify-content: center;
     }
-    .wrap { width: 100%; max-width: 460px; }
+    .wrap { width: 100%; max-width: 520px; }
     .card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 16px; margin-bottom: 14px;
     }
     h1, h2 { margin: 0 0 12px 0; font-size: 1.05rem; font-weight: 600; }
     label { display: block; font-size: 0.82rem; color: var(--muted); margin: 10px 0 4px; }
-    input {
+    input, select, textarea {
       width: 100%; padding: 11px 12px; border-radius: 10px;
       border: 1px solid var(--border); background: #0b1220; color: var(--text);
       font-size: 0.95rem;
+    }
+    textarea {
+      min-height: 240px; resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.84rem; line-height: 1.45;
     }
     button {
       width: 100%; padding: 12px; border-radius: 10px; border: 0;
@@ -46,12 +51,16 @@
     .row:last-child { border-bottom: 0; }
     .k { color: var(--muted); font-size: 0.86rem; }
     .v { font-size: 0.9rem; font-weight: 600; text-align: right; word-break: break-word; }
-    .badge { padding: 3px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+    .badge { padding: 3px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
     .badge.ok { background: rgba(34,197,94,0.2); color: var(--ok); }
     .badge.warn { background: rgba(234,179,8,0.2); color: var(--warn); }
     .badge.err { background: rgba(239,68,68,0.2); color: var(--err); }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
-    .grid button { margin-top: 0; padding: 10px 8px; font-size: 0.88rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 8px; }
+    .grid button { margin-top: 0; padding: 10px 8px; font-size: 0.86rem; }
+    .select-row { display: flex; gap: 8px; margin-top: 10px; align-items: stretch; }
+    .select-row select { flex: 1; }
+    .select-row button { width: auto; margin-top: 0; padding: 10px 14px; white-space: nowrap; }
+    .meta { font-size: 0.78rem; color: var(--muted); margin: 6px 0 8px; }
     .msg { font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
     .msg.err { color: var(--err); }
     .msg.ok { color: var(--ok); }
@@ -62,7 +71,7 @@
 </head>
 <body>
   <div class="wrap">
-    <!-- Schermata login completamente neutra: nessun dato, nessuna logica, nessun segreto -->
+    <!-- Guscio completamente neutro: nessun segreto, nessun URL, nessuna logica applicativa -->
     <div id="view-login" class="card">
       <h1>Accesso</h1>
       <label for="inp-endpoint">URL Servizio</label>
@@ -73,7 +82,7 @@
       <div id="login-msg" class="msg err"></div>
     </div>
 
-    <!-- Contenitore dinamico popolato esclusivamente dal payload autenticato del server -->
+    <!-- Interfaccia dinamica interamente generata dal server dopo autenticazione -->
     <div id="view-app" class="hidden">
       <div class="topbar">
         <strong id="app-title">Pannello</strong>
@@ -124,6 +133,22 @@
         return data;
       }
 
+      async function runAction(btn, action, params, confirmMsg) {
+        if (confirmMsg && !window.confirm(confirmMsg)) return;
+        if (btn) btn.disabled = true;
+        appMsg.className = "msg";
+        appMsg.textContent = "Invio in corso...";
+        try {
+          const out = await callRemote(action, params);
+          renderPayload(out);
+        } catch (err) {
+          appMsg.className = "msg err";
+          appMsg.textContent = err.message;
+        } finally {
+          if (btn) btn.disabled = false;
+        }
+      }
+
       function renderPayload(data) {
         appTitle.textContent = data.title || "Pannello";
         appMsg.className = "msg ok";
@@ -138,6 +163,7 @@
             h2.textContent = sec.title;
             card.appendChild(h2);
           }
+
           (sec.rows || []).forEach(function (r) {
             const row = document.createElement("div");
             row.className = "row";
@@ -145,16 +171,103 @@
             k.className = "k";
             k.textContent = r.label || "";
             const v = document.createElement("span");
-            if (r.badge) {
-              v.className = "badge " + r.badge;
-            } else {
-              v.className = "v";
-            }
+            v.className = r.badge ? ("badge " + r.badge) : "v";
             v.textContent = r.value != null ? String(r.value) : "-";
             row.appendChild(k);
             row.appendChild(v);
             card.appendChild(row);
           });
+
+          if (sec.select && sec.select.options && sec.select.options.length) {
+            const sRow = document.createElement("div");
+            sRow.className = "select-row";
+            const sel = document.createElement("select");
+            sec.select.options.forEach(function (opt) {
+              const o = document.createElement("option");
+              o.value = opt.value;
+              o.textContent = opt.label;
+              if (opt.selected) o.selected = true;
+              sel.appendChild(o);
+            });
+            const sb = document.createElement("button");
+            sb.textContent = sec.select.buttonLabel || "Applica";
+            sb.className = sec.select.style || "secondary";
+            sb.addEventListener("click", function () {
+              const p = Object.assign({}, sec.select.params || {});
+              p[sec.select.paramKey || "value"] = sel.value;
+              runAction(sb, sec.select.action, p, sec.select.confirm);
+            });
+            sRow.appendChild(sel);
+            sRow.appendChild(sb);
+            card.appendChild(sRow);
+          }
+
+          if (sec.editor) {
+            const ed = sec.editor;
+            const meta = document.createElement("div");
+            meta.className = "meta";
+            const ta = document.createElement("textarea");
+            ta.value = ed.content || "";
+            const updateMeta = function () {
+              meta.textContent = (ed.metaPrefix ? ed.metaPrefix + " · " : "") + ta.value.length + " caratteri";
+            };
+            updateMeta();
+            ta.addEventListener("input", updateMeta);
+            card.appendChild(meta);
+            card.appendChild(ta);
+
+            const edBtns = document.createElement("div");
+            edBtns.className = "grid";
+            edBtns.style.marginTop = "10px";
+
+            if (ed.allowFileUpload) {
+              const fileInput = document.createElement("input");
+              fileInput.type = "file";
+              fileInput.accept = ".md,.txt,text/plain,text/markdown";
+              fileInput.className = "hidden";
+              fileInput.addEventListener("change", function () {
+                const f = fileInput.files && fileInput.files[0];
+                if (!f) return;
+                const reader = new FileReader();
+                reader.onload = function () {
+                  ta.value = String(reader.result || "");
+                  updateMeta();
+                  appMsg.className = "msg ok";
+                  appMsg.textContent = "File caricato nell'editor. Premi Salva per confermare.";
+                };
+                reader.readAsText(f, "utf-8");
+              });
+              card.appendChild(fileInput);
+
+              const btnLoad = document.createElement("button");
+              btnLoad.textContent = ed.uploadLabel || "Carica file";
+              btnLoad.className = "secondary";
+              btnLoad.addEventListener("click", function () { fileInput.click(); });
+              edBtns.appendChild(btnLoad);
+            }
+
+            const btnSave = document.createElement("button");
+            btnSave.textContent = ed.saveLabel || "Salva";
+            btnSave.className = "ok";
+            btnSave.addEventListener("click", function () {
+              const p = Object.assign({}, ed.params || {});
+              p[ed.contentKey || "content"] = ta.value;
+              runAction(btnSave, ed.action, p, ed.confirm);
+            });
+            edBtns.appendChild(btnSave);
+
+            if (ed.closeAction) {
+              const btnClose = document.createElement("button");
+              btnClose.textContent = "Chiudi editor";
+              btnClose.className = "secondary";
+              btnClose.addEventListener("click", function () {
+                runAction(btnClose, ed.closeAction, {}, null);
+              });
+              edBtns.appendChild(btnClose);
+            }
+            card.appendChild(edBtns);
+          }
+
           if (sec.actions && sec.actions.length) {
             const grid = document.createElement("div");
             grid.className = "grid";
@@ -163,25 +276,14 @@
               const b = document.createElement("button");
               b.textContent = act.label;
               if (act.style) b.className = act.style;
-              b.addEventListener("click", async function () {
-                if (act.confirm && !window.confirm(act.confirm)) return;
-                b.disabled = true;
-                appMsg.className = "msg";
-                appMsg.textContent = "Invio in corso...";
-                try {
-                  const out = await callRemote(act.action, act.params);
-                  renderPayload(out);
-                } catch (err) {
-                  appMsg.className = "msg err";
-                  appMsg.textContent = err.message;
-                } finally {
-                  b.disabled = false;
-                }
+              b.addEventListener("click", function () {
+                runAction(b, act.action, act.params, act.confirm);
               });
               grid.appendChild(b);
             });
             card.appendChild(grid);
           }
+
           appCards.appendChild(card);
         });
       }
@@ -209,18 +311,8 @@
       btnLogin.addEventListener("click", doLogin);
       inpPw.addEventListener("keydown", function (e) { if (e.key === "Enter") doLogin(); });
 
-      btnRefresh.addEventListener("click", async function () {
-        btnRefresh.disabled = true;
-        appMsg.className = "msg";
-        appMsg.textContent = "Aggiornamento...";
-        try {
-          renderPayload(await callRemote("status", {}));
-        } catch (err) {
-          appMsg.className = "msg err";
-          appMsg.textContent = err.message;
-        } finally {
-          btnRefresh.disabled = false;
-        }
+      btnRefresh.addEventListener("click", function () {
+        runAction(btnRefresh, "status", {}, null);
       });
 
       btnLogout.addEventListener("click", function () {
