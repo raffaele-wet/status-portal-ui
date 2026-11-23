@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Accesso</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --ok: #22c55e;
+      --warn: #eab308;
+      --err: #ef4444;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body {
+      margin: 0; padding: 16px; background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; justify-content: center;
+    }
+    .wrap { width: 100%; max-width: 460px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px; margin-bottom: 14px;
+    }
+    h1, h2 { margin: 0 0 12px 0; font-size: 1.05rem; font-weight: 600; }
+    label { display: block; font-size: 0.82rem; color: var(--muted); margin: 10px 0 4px; }
+    input {
+      width: 100%; padding: 11px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: #0b1220; color: var(--text);
+      font-size: 0.95rem;
+    }
+    button {
+      width: 100%; padding: 12px; border-radius: 10px; border: 0;
+      background: var(--accent); color: #0b1220; font-weight: 700;
+      font-size: 0.95rem; cursor: pointer; margin-top: 12px;
+    }
+    button.secondary { background: #334155; color: var(--text); }
+    button.danger { background: var(--err); color: #fff; }
+    button.ok { background: var(--ok); color: #052e16; }
+    button:disabled { opacity: 0.5; cursor: wait; }
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #263348; gap: 8px; }
+    .row:last-child { border-bottom: 0; }
+    .k { color: var(--muted); font-size: 0.86rem; }
+    .v { font-size: 0.9rem; font-weight: 600; text-align: right; word-break: break-word; }
+    .badge { padding: 3px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+    .badge.ok { background: rgba(34,197,94,0.2); color: var(--ok); }
+    .badge.warn { background: rgba(234,179,8,0.2); color: var(--warn); }
+    .badge.err { background: rgba(239,68,68,0.2); color: var(--err); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
+    .grid button { margin-top: 0; padding: 10px 8px; font-size: 0.88rem; }
+    .msg { font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+    .msg.err { color: var(--err); }
+    .msg.ok { color: var(--ok); }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .topbar button { width: auto; margin: 0; padding: 7px 12px; font-size: 0.82rem; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Schermata login completamente neutra: nessun dato, nessuna logica, nessun segreto -->
+    <div id="view-login" class="card">
+      <h1>Accesso</h1>
+      <label for="inp-endpoint">URL Servizio</label>
+      <input id="inp-endpoint" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" />
+      <label for="inp-pass">Password</label>
+      <input id="inp-pass" type="password" placeholder="Inserisci password" autocomplete="current-password" />
+      <button id="btn-login">Entra</button>
+      <div id="login-msg" class="msg err"></div>
+    </div>
+
+    <!-- Contenitore dinamico popolato esclusivamente dal payload autenticato del server -->
+    <div id="view-app" class="hidden">
+      <div class="topbar">
+        <strong id="app-title">Pannello</strong>
+        <div style="display:flex; gap:8px;">
+          <button id="btn-refresh" class="secondary">Aggiorna</button>
+          <button id="btn-logout" class="secondary">Esci</button>
+        </div>
+      </div>
+      <div id="app-msg" class="msg"></div>
+      <div id="app-cards"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const STORAGE_EP = "portal_ep_v1";
+      const SESSION_PW = "portal_pw_v1";
+
+      const elLogin = document.getElementById("view-login");
+      const elApp = document.getElementById("view-app");
+      const inpEp = document.getElementById("inp-endpoint");
+      const inpPw = document.getElementById("inp-pass");
+      const btnLogin = document.getElementById("btn-login");
+      const btnRefresh = document.getElementById("btn-refresh");
+      const btnLogout = document.getElementById("btn-logout");
+      const loginMsg = document.getElementById("login-msg");
+      const appMsg = document.getElementById("app-msg");
+      const appTitle = document.getElementById("app-title");
+      const appCards = document.getElementById("app-cards");
+
+      inpEp.value = localStorage.getItem(STORAGE_EP) || "";
+
+      async function callRemote(action, params) {
+        const endpoint = (localStorage.getItem(STORAGE_EP) || inpEp.value || "").trim();
+        const password = sessionStorage.getItem(SESSION_PW) || inpPw.value || "";
+        if (!endpoint || !password) {
+          throw new Error("Compila URL servizio e password.");
+        }
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ password, action, params: params || {} }),
+        });
+        const data = await res.json();
+        if (!data || !data.ok) {
+          throw new Error((data && data.error) || "Richiesta rifiutata.");
+        }
+        return data;
+      }
+
+      function renderPayload(data) {
+        appTitle.textContent = data.title || "Pannello";
+        appMsg.className = "msg ok";
+        appMsg.textContent = data.notice || "";
+        appCards.innerHTML = "";
+
+        (data.sections || []).forEach(function (sec) {
+          const card = document.createElement("div");
+          card.className = "card";
+          if (sec.title) {
+            const h2 = document.createElement("h2");
+            h2.textContent = sec.title;
+            card.appendChild(h2);
+          }
+          (sec.rows || []).forEach(function (r) {
+            const row = document.createElement("div");
+            row.className = "row";
+            const k = document.createElement("span");
+            k.className = "k";
+            k.textContent = r.label || "";
+            const v = document.createElement("span");
+            if (r.badge) {
+              v.className = "badge " + r.badge;
+            } else {
+              v.className = "v";
+            }
+            v.textContent = r.value != null ? String(r.value) : "-";
+            row.appendChild(k);
+            row.appendChild(v);
+            card.appendChild(row);
+          });
+          if (sec.actions && sec.actions.length) {
+            const grid = document.createElement("div");
+            grid.className = "grid";
+            grid.style.marginTop = "10px";
+            sec.actions.forEach(function (act) {
+              const b = document.createElement("button");
+              b.textContent = act.label;
+              if (act.style) b.className = act.style;
+              b.addEventListener("click", async function () {
+                if (act.confirm && !window.confirm(act.confirm)) return;
+                b.disabled = true;
+                appMsg.className = "msg";
+                appMsg.textContent = "Invio in corso...";
+                try {
+                  const out = await callRemote(act.action, act.params);
+                  renderPayload(out);
+                } catch (err) {
+                  appMsg.className = "msg err";
+                  appMsg.textContent = err.message;
+                } finally {
+                  b.disabled = false;
+                }
+              });
+              grid.appendChild(b);
+            });
+            card.appendChild(grid);
+          }
+          appCards.appendChild(card);
+        });
+      }
+
+      async function doLogin() {
+        loginMsg.textContent = "";
+        btnLogin.disabled = true;
+        try {
+          const ep = inpEp.value.trim();
+          const pw = inpPw.value;
+          localStorage.setItem(STORAGE_EP, ep);
+          sessionStorage.setItem(SESSION_PW, pw);
+          const data = await callRemote("status", {});
+          elLogin.classList.add("hidden");
+          elApp.classList.remove("hidden");
+          renderPayload(data);
+        } catch (err) {
+          sessionStorage.removeItem(SESSION_PW);
+          loginMsg.textContent = err.message;
+        } finally {
+          btnLogin.disabled = false;
+        }
+      }
+
+      btnLogin.addEventListener("click", doLogin);
+      inpPw.addEventListener("keydown", function (e) { if (e.key === "Enter") doLogin(); });
+
+      btnRefresh.addEventListener("click", async function () {
+        btnRefresh.disabled = true;
+        appMsg.className = "msg";
+        appMsg.textContent = "Aggiornamento...";
+        try {
+          renderPayload(await callRemote("status", {}));
+        } catch (err) {
+          appMsg.className = "msg err";
+          appMsg.textContent = err.message;
+        } finally {
+          btnRefresh.disabled = false;
+        }
+      });
+
+      btnLogout.addEventListener("click", function () {
+        sessionStorage.removeItem(SESSION_PW);
+        inpPw.value = "";
+        appCards.innerHTML = "";
+        elApp.classList.add("hidden");
+        elLogin.classList.remove("hidden");
+      });
+    })();
+  </script>
+</body>
+</html>
