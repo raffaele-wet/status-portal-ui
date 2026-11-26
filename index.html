@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Accesso</title>
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="apple-touch-icon" href="icon.png" />
   <style>
     :root {
       --bg: #0f172a;
@@ -60,6 +62,11 @@
     .msg.ok { color: var(--ok); }
     .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .topbar button { width: auto; margin: 0; padding: 7px 12px; font-size: 0.8rem; }
+    .brand { display: flex; align-items: center; gap: 9px; }
+    .brand-icon { image-rendering: pixelated; height: 30px; width: auto; display: block; }
+    .login-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .login-head h1 { margin: 0; }
+    .login-head .brand-icon { height: 36px; }
     .hidden { display: none; }
     .matrix-box {
       background: #070d18; border: 1px solid #263348; border-radius: 10px;
@@ -99,7 +106,10 @@
 <body>
   <div class="wrap">
     <div id="view-login" class="card">
-      <h1>Accesso</h1>
+      <div class="login-head">
+        <img class="brand-icon" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAABSCAYAAAAiskb3AAACNUlEQVR42u2aQW4DIQxFR0rVa/QKPUUiVaq6qZRN7zTrHCWr3qkXaCsaUmH42AZmgskg/UUyg3mJwUaYaZK374tatdb27IK21ga6zdFa1wbPj+/HQFKARL+kfcnU6B7UffH2uk9qwUUUSDC+MVCpFC7PToGSMGYLdJ7nQGu5XDG+MVCtDvuD08PzhxN6zz/379ek2jFB6YAUdN7tnNDzCmA7oNkUhgx7gN8PTgjUP0dTRAAuy/U9grrmOyIhUC8PSr9HUyAzTr6ZB40Av6Y/CUH9+1Lg+wGdXk5OpaC+//2CRoHbDwSAI1AKeBE3BcYDRQH+CkhAONBrYgCgiQQwKGgUsCmodDEBUJqCxwPlANFiQpsKtJg44HFBqaujsKQUtLeBUgDG9RuowpD7fP58TAq9f7+gUXgSHoaxh2eLx9GOQAODMOCDzQTccBPAzOakrPjQM2jSIASni+PfSOhKBIb/gNFAGWUWWdLV3PFkSenRDKgovLAuRFNGH97GA01OiYauX7Ze3zOoDviGgOZA8ymWB1293QY0U4aWuf70lJTU9eLxLYBKU1k2laIjHEHqFHPYApWUoVUba/lial6v7wO0VA1cv2y93hyodJu3gSo2EbVHNOOBqm8b5kCjco3STovbjt2Aog7JRq+uwaNw/qqcaly7oAnXZVMgB8qB1Z84WwGNSoQohRIwdDVDYX8w0KiUyBRhudTK9m91PtojqC61kQ0yVcHmpO5EpGfQtj+og7YK6A8np/PUh915RwAAAABJRU5ErkJggg==" />
+        <h1>Accesso</h1>
+      </div>
       <label for="inp-endpoint">URL</label>
       <input id="inp-endpoint" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" />
       <label for="inp-pass">Password</label>
@@ -110,7 +120,10 @@
 
     <div id="view-app" class="hidden">
       <div class="topbar">
-        <strong id="app-title">Stato</strong>
+        <div class="brand">
+          <img class="brand-icon" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAABSCAYAAAAiskb3AAACNUlEQVR42u2aQW4DIQxFR0rVa/QKPUUiVaq6qZRN7zTrHCWr3qkXaCsaUmH42AZmgskg/UUyg3mJwUaYaZK374tatdb27IK21ga6zdFa1wbPj+/HQFKARL+kfcnU6B7UffH2uk9qwUUUSDC+MVCpFC7PToGSMGYLdJ7nQGu5XDG+MVCtDvuD08PzhxN6zz/379ek2jFB6YAUdN7tnNDzCmA7oNkUhgx7gN8PTgjUP0dTRAAuy/U9grrmOyIhUC8PSr9HUyAzTr6ZB40Av6Y/CUH9+1Lg+wGdXk5OpaC+//2CRoHbDwSAI1AKeBE3BcYDRQH+CkhAONBrYgCgiQQwKGgUsCmodDEBUJqCxwPlANFiQpsKtJg44HFBqaujsKQUtLeBUgDG9RuowpD7fP58TAq9f7+gUXgSHoaxh2eLx9GOQAODMOCDzQTccBPAzOakrPjQM2jSIASni+PfSOhKBIb/gNFAGWUWWdLV3PFkSenRDKgovLAuRFNGH97GA01OiYauX7Ze3zOoDviGgOZA8ymWB1293QY0U4aWuf70lJTU9eLxLYBKU1k2laIjHEHqFHPYApWUoVUba/lial6v7wO0VA1cv2y93hyodJu3gSo2EbVHNOOBqm8b5kCjco3STovbjt2Aog7JRq+uwaNw/qqcaly7oAnXZVMgB8qB1Z84WwGNSoQohRIwdDVDYX8w0KiUyBRhudTK9m91PtojqC61kQ0yVcHmpO5EpGfQtj+og7YK6A8np/PUh915RwAAAABJRU5ErkJggg==" />
+          <strong id="app-title">Stato</strong>
+        </div>
         <div style="display:flex; gap:6px;">
           <button id="btn-refresh" class="secondary">Aggiorna</button>
           <button id="btn-logout" class="secondary">Esci</button>
