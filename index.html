@@ -61,6 +61,39 @@
     .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .topbar button { width: auto; margin: 0; padding: 7px 12px; font-size: 0.8rem; }
     .hidden { display: none; }
+    .matrix-box {
+      background: #070d18; border: 1px solid #263348; border-radius: 10px;
+      padding: 12px 10px 10px; margin-bottom: 10px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .matrix-grid {
+      display: grid; gap: 4px; width: 100%; max-width: 286px;
+    }
+    .px {
+      aspect-ratio: 1 / 1; border-radius: 50%; background: #172133;
+      transition: background 0.15s ease, box-shadow 0.15s ease;
+    }
+    .px.on { background: #38bdf8; box-shadow: 0 0 7px rgba(56,189,248,0.85); }
+    .matrix-grid.ok .px.on { background: #22c55e; box-shadow: 0 0 7px rgba(34,197,94,0.85); }
+    .matrix-grid.warn .px.on { background: #facc15; box-shadow: 0 0 7px rgba(250,204,21,0.85); }
+    .matrix-grid.err .px.on { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,0.9); }
+    .matrix-cap { font-size: 0.8rem; color: var(--muted); font-weight: 600; text-align: center; }
+    .led-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
+    .led-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 8px; border-radius: 8px; background: #131d31; border: 1px solid #243147;
+    }
+    .led-dot {
+      width: 12px; height: 12px; min-width: 12px; border-radius: 50%;
+      background: #475569;
+    }
+    .led-dot.green { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.9); }
+    .led-dot.yellow { background: #eab308; box-shadow: 0 0 8px rgba(234,179,8,0.85); }
+    .led-dot.red { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,0.95); }
+    .led-dot.off { background: #334155; }
+    .led-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+    .led-name { font-size: 0.82rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .led-detail { font-size: 0.78rem; color: var(--muted); line-height: 1.25; margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -149,6 +182,56 @@
             const h2 = document.createElement("h2");
             h2.textContent = sec.title;
             card.appendChild(h2);
+          }
+
+          if (sec.matrix && Array.isArray(sec.matrix.rows) && sec.matrix.rows.length) {
+            const box = document.createElement("div");
+            box.className = "matrix-box";
+            const cols = sec.matrix.rows[0].length || 13;
+            const grid = document.createElement("div");
+            grid.className = "matrix-grid" + (sec.matrix.tone ? (" " + sec.matrix.tone) : "");
+            grid.style.gridTemplateColumns = "repeat(" + cols + ", 1fr)";
+            sec.matrix.rows.forEach(function (line) {
+              for (let i = 0; i < line.length; i++) {
+                const px = document.createElement("div");
+                const ch = line.charAt(i);
+                px.className = (ch === "1" || ch === "#") ? "px on" : "px";
+                grid.appendChild(px);
+              }
+            });
+            box.appendChild(grid);
+            if (sec.matrix.caption) {
+              const cap = document.createElement("div");
+              cap.className = "matrix-cap";
+              cap.textContent = sec.matrix.caption;
+              box.appendChild(cap);
+            }
+            card.appendChild(box);
+          }
+
+          if (sec.leds && sec.leds.length) {
+            const list = document.createElement("div");
+            list.className = "led-list";
+            sec.leds.forEach(function (led) {
+              const item = document.createElement("div");
+              item.className = "led-item";
+              const dot = document.createElement("span");
+              dot.className = "led-dot " + String(led.color || "off").toLowerCase();
+              const body = document.createElement("div");
+              body.className = "led-body";
+              const name = document.createElement("span");
+              name.className = "led-name";
+              name.textContent = led.name || "";
+              const detail = document.createElement("span");
+              detail.className = "led-detail";
+              detail.textContent = led.detail || "";
+              body.appendChild(name);
+              body.appendChild(detail);
+              item.appendChild(dot);
+              item.appendChild(body);
+              list.appendChild(item);
+            });
+            card.appendChild(list);
           }
 
           (sec.rows || []).forEach(function (r) {
